@@ -1,6 +1,7 @@
 
 package prendas;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Prenda {
 
@@ -29,11 +30,13 @@ public class Prenda {
 
     }
 
+    public Prenda(){}
+
 
     public String getImagen() {
         return imagen;
     }
-
+    @JsonProperty
     public void setImagen(String imagen) {
         this.imagen = imagen;
     }
@@ -41,7 +44,7 @@ public class Prenda {
     public int getId() {
         return id;
     }
-
+    @JsonProperty
     public void setId(int id) {
         this.id = id;
     }
@@ -49,7 +52,7 @@ public class Prenda {
     public String getNombre() {
         return nombre;
     }
-
+    @JsonProperty
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -57,7 +60,7 @@ public class Prenda {
     public String getDescripcion() {
         return descripcion;
     }
-
+    @JsonProperty
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
@@ -65,7 +68,7 @@ public class Prenda {
     public String getCategoria() {
         return categoria;
     }
-
+    @JsonProperty
     public void setCategoria(String categoria) {
         this.categoria = categoria;
     }
@@ -73,7 +76,7 @@ public class Prenda {
     public String getTalla() {
         return talla;
     }
-
+    @JsonProperty
     public void setTalla(String talla) {
         this.talla = talla;
     }
@@ -81,7 +84,7 @@ public class Prenda {
     public int getStock() {
         return stock;
     }
-
+    @JsonProperty
     public void setStock(int stock) {
         this.stock = stock;
     }
@@ -89,7 +92,7 @@ public class Prenda {
     public int getPrecio() {
         return precio;
     }
-
+    @JsonProperty
     public void setPrecio(int precio) {
         this.precio = precio;
     }
@@ -97,15 +100,15 @@ public class Prenda {
     public String getComposicion() {
         return composicion;
     }
-
+    @JsonProperty
     public void setComposicion(String composicion) {
         this.composicion = composicion;
     }
-
+    
     public String getProveedor() {
         return proveedor;
     }
-
+     @JsonProperty
     public void setProveedor(String proveedor) {
         this.proveedor = proveedor;
     }
