@@ -36,7 +36,7 @@ public class PrendaController {
     public PrendaController() throws SQLException {
 		try {
 			Class.forName("org.postgresql.Driver");
-			c = DriverManager.getConnection("jdbc:sqlserver://stockfindertiendas.database.windows.net:1433;database=tiendas;user=stockadmin@stockfindertiendas;password=I_yj73PRBlnBOOyhhcEfDw;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;");
+			c = DriverManager.getConnection("jdbc:sqlserver://stockfindertiendas.database.windows.net:1433;database=tiendas;user=stockadmin@stockfindertiendas;password=I_yj73PRBlnBOOyhhcEfDw;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=120;");
 			c.setAutoCommit(true);
 
 		} catch (Exception e) {
