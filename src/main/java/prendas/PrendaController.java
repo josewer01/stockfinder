@@ -57,7 +57,7 @@ public class PrendaController {
     @RequestParam(value = "id") int id
    , @RequestParam(value = "tienda", defaultValue="sevilla") String tienda) throws SQLException
     {
-	if (c != null) {
+	if (c == null) { while((c = ds.getConnection()) == null); }
 			
 
 		    String query = "SELECT * FROM "+tienda+" WHERE id = ?";
@@ -67,7 +67,6 @@ public class PrendaController {
    			 ResultSet rs = s.executeQuery();
 
 			if (rs == null){
-				cerrarDatabase();
 				return null;
 			}
 			else {
@@ -79,8 +78,7 @@ public class PrendaController {
 
 				return objeto;
 			}
-		} else
-			return null;
+		
 	}
 
  @GetMapping("/prendas")
@@ -88,7 +86,7 @@ public class PrendaController {
 	@RequestParam(value="tienda", defaultValue="sevilla") String tienda) throws SQLException
     {
 	List<Prenda> l = new LinkedList<Prenda>();
-	if (c != null) {
+	if (c == null) { while((c = ds.getConnection()) == null); }
 
 		    String query = "SELECT * FROM "+tienda;
 			 s = c.prepareStatement(query);
@@ -96,7 +94,6 @@ public class PrendaController {
    			 ResultSet rs = s.executeQuery();
 
 			if (rs == null){
-				cerrarDatabase();
 				return null;
 			}
 			else {
@@ -106,12 +103,11 @@ public class PrendaController {
 										rs.getString("composicion"),rs.getString("proveedor"),rs.getString("imagen"));
 					l.add(objeto);					
 
-}
+				}
 
 				return l;
 			}
-		} else
-			return null;
+		
 	}
 
 	//Método para añadir una nueva entrada
@@ -122,7 +118,7 @@ public class PrendaController {
     {
 		int resultado = 0;
 		ResponseEntity<String> respuesta = null;
-	if (c != null) {
+		if (c == null) { while((c = ds.getConnection()) == null); }
 		
 
 		try{
@@ -153,11 +149,9 @@ public class PrendaController {
 			}
 			if (resultado >= 1){
 				respuesta = new ResponseEntity<>("Insertado correctamente", HttpStatus.CREATED);	
-			}
-		} else{
+			}else{
 			respuesta = new ResponseEntity<>("No insertado",HttpStatus.INTERNAL_SERVER_ERROR);
-			cerrarDatabase();
-		}
+				}
 		return respuesta;
 	}
 
@@ -168,7 +162,7 @@ public class PrendaController {
     {
 		int numRegBorrados = 0;
 		ResponseEntity<String> respuesta = null;
-	if (c != null) {
+		if (c == null) { while((c = ds.getConnection()) == null); }
 		
 
 		try{
@@ -192,12 +186,8 @@ public class PrendaController {
 				respuesta = new ResponseEntity<>("Borrado correctamente", HttpStatus.CREATED);	
 			} else {
 				respuesta = new ResponseEntity<>("No ha sido posible borrar",HttpStatus.INTERNAL_SERVER_ERROR);
-				cerrarDatabase();
-			}
-		} else{
-			respuesta = new ResponseEntity<>("No ha sido posible borrar",HttpStatus.INTERNAL_SERVER_ERROR);
-			cerrarDatabase();
-		}
+
+			} 	
 		return respuesta;
 	}
 
@@ -208,7 +198,7 @@ public class PrendaController {
     {
 		int columnasAfectadas = 0;
 		ResponseEntity<String> respuesta = null;
-	if (c != null) {
+		if (c == null) { while((c = ds.getConnection()) == null); }
 			//Evitamos que el valor pueda ir negativo
 		    String query = "UPDATE "+tienda+" SET stock = stock - 1 WHERE id = ? AND stock > 0";
 			 s = c.prepareStatement(query);
@@ -222,12 +212,8 @@ public class PrendaController {
 			}
 			else {
 				respuesta = new ResponseEntity<>("No ha sido posible decrementar",HttpStatus.INTERNAL_SERVER_ERROR);
-				cerrarDatabase();
 			}
-		} else{
-			respuesta = new ResponseEntity<>("No ha sido posible decrementar",HttpStatus.INTERNAL_SERVER_ERROR);
-				cerrarDatabase();
-		}
+		
 		return respuesta;
 	}
 
@@ -245,7 +231,7 @@ public void cerrarDatabase() throws SQLException {
     public List<Solicitud> solicitudLista() throws SQLException
     {
 	List<Solicitud> l = new LinkedList<Solicitud>();
-	if (c != null) {
+	if (c == null) { while((c = ds.getConnection()) == null); }
 
 		    String query = "SELECT * FROM solicitudes";
 			 s = c.prepareStatement(query);
@@ -253,7 +239,6 @@ public void cerrarDatabase() throws SQLException {
    			 ResultSet rs = s.executeQuery();
 
 			if (rs == null){
-				cerrarDatabase();
 				return null;
 			}
 			else {
@@ -265,9 +250,7 @@ public void cerrarDatabase() throws SQLException {
 
 				return l;
 			}
-		} else
-			return null;
-	}
+		}
 
 	@PutMapping("/aceptarsolicitud")
     public ResponseEntity<String>  aceptarSolicitud(
@@ -276,7 +259,7 @@ public void cerrarDatabase() throws SQLException {
     {
 		int columnasAfectadas = 0;
 		ResponseEntity<String> respuesta = null;
-	if (c != null) {
+		if (c == null) { while((c = ds.getConnection()) == null); }
 			
 		    String query = "UPDATE "+donante+" SET stock = stock - ? WHERE id = ?";
 			s = c.prepareStatement(query);
@@ -303,21 +286,16 @@ public void cerrarDatabase() throws SQLException {
 						respuesta = new ResponseEntity<>("Transacción exitosa", HttpStatus.CREATED);
 					}else{
 					respuesta = new ResponseEntity<>("Translado no realizado",HttpStatus.INTERNAL_SERVER_ERROR);
-					cerrarDatabase();
+
 					}
 				}else{
 					respuesta = new ResponseEntity<>("Translado no realizado",HttpStatus.INTERNAL_SERVER_ERROR);
-					cerrarDatabase();
 				}
 			}
 			else {
 				respuesta = new ResponseEntity<>("Translado no realizado",HttpStatus.INTERNAL_SERVER_ERROR);
-				cerrarDatabase();
 			}
-		} else{
-			respuesta = new ResponseEntity<>("Translado no realizado",HttpStatus.INTERNAL_SERVER_ERROR);
-				cerrarDatabase();
-		}
+		
 		return respuesta;
 	}
 
@@ -328,7 +306,7 @@ public void cerrarDatabase() throws SQLException {
     {
 		int columnasAfectadas = 0;
 		ResponseEntity<String> respuesta = null;
-	if (c != null) {
+		if (c == null) { while((c = ds.getConnection()) == null); }
 			
 		    String query = "DELETE FROM solicitudes WHERE id = ?";
 			 s = c.prepareStatement(query);
@@ -342,12 +320,8 @@ public void cerrarDatabase() throws SQLException {
 			}
 			else {
 				respuesta = new ResponseEntity<>("No fue posible borrar la solicitud",HttpStatus.INTERNAL_SERVER_ERROR);
-				cerrarDatabase();
 			}
-		} else{
-			respuesta = new ResponseEntity<>("No fue posible borrar la solicitud",HttpStatus.INTERNAL_SERVER_ERROR);
-				cerrarDatabase();
-		}
+		 
 		return respuesta;
 	}
 
@@ -358,7 +332,7 @@ public void cerrarDatabase() throws SQLException {
     {
 		int resultado = 0;
 		ResponseEntity<String> respuesta = null;
-	if (c != null) {
+		if (c == null) { while((c = ds.getConnection()) == null); }
 		
 
 		try{
@@ -383,10 +357,8 @@ public void cerrarDatabase() throws SQLException {
 			if (resultado >= 1){
 				respuesta = new ResponseEntity<>("Peticion insertada correctamente", HttpStatus.CREATED);	
 			}
-		} else{
-			respuesta = new ResponseEntity<>("Peticion no insertada",HttpStatus.INTERNAL_SERVER_ERROR);
-			cerrarDatabase();
-		}
+		
+		
 		return respuesta;
 	}
 
