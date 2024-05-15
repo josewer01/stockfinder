@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.azure.core.annotation.Put;
 
 import javax.sql.DataSource;
@@ -35,12 +35,17 @@ public class PrendaController {
 	private PreparedStatement s = null; // Objeto de tipo sentencia SQL
 	private ResultSet rs = null; // Objeto de tipo resultado Query SQL
 	private Prenda objeto;
-	public DataSource ds; 
+	private SQLServerDataSource ds;
 
     public PrendaController() throws SQLException {
 		try {
-			ds = DataSourceConfig.getDataSource();
+			ds = new SQLServerDataSource();
+			ds.setServerName("stockfindertiendas.database.windows.net");
+			ds.setDatabaseName("tiendas");
+			ds.setUser("stockadmin@stockfindertiendas");
+			ds.setPassword("I_yj73PRBlnBOOyhhcEfDw");
 			c = ds.getConnection();
+
 
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
