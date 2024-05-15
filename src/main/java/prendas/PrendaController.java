@@ -255,7 +255,7 @@ public void cerrarDatabase() throws SQLException {
 			}
 			else {
 				while (rs.next()){
-				   Solicitud solicitud = new Solicitud(rs.getInt("id"),rs.getString("origen"),rs.getString("cantidad"));
+				   Solicitud solicitud = new Solicitud(rs.getInt("id"),rs.getInt("id_prenda"),rs.getString("origen"),rs.getString("cantidad"));
 					l.add(solicitud);					
 
 }
@@ -278,7 +278,7 @@ public void cerrarDatabase() throws SQLException {
 		    String query = "UPDATE "+donante+" SET stock = stock - ? WHERE id = ?";
 			s = c.prepareStatement(query);
 			s.setString(1, solicitud.getCantidad());
-     		s.setInt(2, solicitud.getId());
+     		s.setInt(2, solicitud.getId_prenda());
 			
 			 columnasAfectadas = s.executeUpdate();
 
@@ -287,7 +287,7 @@ public void cerrarDatabase() throws SQLException {
 				query = "UPDATE "+solicitud.getOrigen()+" SET stock = stock + ? WHERE id = ?";
 				s = c.prepareStatement(query);
 				s.setString(1, solicitud.getCantidad());
-     			s.setInt(2, solicitud.getId());  
+     			s.setInt(2, solicitud.getId_prenda());  
 				columnasAfectadas = s.executeUpdate();
 				
 				if(columnasAfectadas >=1){
@@ -349,10 +349,9 @@ public void cerrarDatabase() throws SQLException {
 	}
 
 	
-	@PostMapping(path = "/creasolicitud/{id}")
+	@PostMapping(path = "/creasolicitud")
     public  ResponseEntity<String> crearsolicitud(
-		@PathVariable(value = "id") String id
-		, @RequestBody Solicitud nuevaSolicitud)  throws SQLException
+	  @RequestBody Solicitud nuevaSolicitud)  throws SQLException
     {
 		int resultado = 0;
 		ResponseEntity<String> respuesta = null;
@@ -361,11 +360,12 @@ public void cerrarDatabase() throws SQLException {
 
 		try{
 			
-		    String query = "INSERT INTO solicitudes (id, origen, cantidad) VALUES (?, ?, ?)";
+		    String query = "INSERT INTO solicitudes (id,id_prenda, origen, cantidad) VALUES (? ,? , ?, ?)";
 			 s = c.prepareStatement(query);
      		s.setInt(1, nuevaSolicitud.getId());
-			s.setString(2, nuevaSolicitud.getOrigen());
-			s.setString(2, nuevaSolicitud.getCantidad());	
+			 s.setInt(2, nuevaSolicitud.getId_prenda());
+			s.setString(3, nuevaSolicitud.getOrigen());
+			s.setString(4, nuevaSolicitud.getCantidad());	
    		    resultado  = s.executeUpdate();
 			} catch (SQLException e){
 				System.out.println("PrendaController: Excepción SQLException:" + e.getMessage());
