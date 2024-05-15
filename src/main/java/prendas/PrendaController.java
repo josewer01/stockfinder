@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.azure.core.annotation.Put;
+
 import javax.sql.DataSource;
 
 
@@ -194,37 +198,7 @@ public class PrendaController {
 		return respuesta;
 	}
 
-	@GetMapping("/sumar")
-    public ResponseEntity<String>  modificarPrendaSumar(
-    @RequestParam(value = "id") int id
-   , @RequestParam(value = "tienda", defaultValue="sevilla") String tienda) throws SQLException
-    {
-		int columnasAfectadas = 0;
-		ResponseEntity<String> respuesta = null;
-	if (c != null) {
-			
-		    String query = "UPDATE "+tienda+" SET stock = stock + 1 WHERE id = ?";
-			 s = c.prepareStatement(query);
-     		s.setInt(1, id);
-			
-			 columnasAfectadas = s.executeUpdate();
-
-			if (columnasAfectadas >= 1){
-				respuesta = new ResponseEntity<>("Incrementado correctamente", HttpStatus.CREATED);	
-				
-			}
-			else {
-				respuesta = new ResponseEntity<>("No ha sido posible incrementar",HttpStatus.INTERNAL_SERVER_ERROR);
-				cerrarDatabase();
-			}
-		} else{
-			respuesta = new ResponseEntity<>("No ha sido posible incrementar",HttpStatus.INTERNAL_SERVER_ERROR);
-				cerrarDatabase();
-		}
-		return respuesta;
-	}
-
-	@GetMapping("/restar")
+	@PutMapping("/restar")
     public ResponseEntity<String>  modificarPrendaRestar(
     @RequestParam(value = "id") int id
    , @RequestParam(value = "tienda", defaultValue="sevilla") String tienda) throws SQLException
@@ -260,6 +234,157 @@ public void cerrarDatabase() throws SQLException {
 		if(s != null) s.close();
 
 		c.close();
+	}
+
+//Métodos para solicitudes
+
+@GetMapping("/solicitudes")
+    public List<Solicitud> solicitudLista() throws SQLException
+    {
+	List<Solicitud> l = new LinkedList<Solicitud>();
+	if (c != null) {
+
+		    String query = "SELECT * FROM solicitudes";
+			 s = c.prepareStatement(query);
+
+   			 ResultSet rs = s.executeQuery();
+
+			if (rs == null){
+				cerrarDatabase();
+				return null;
+			}
+			else {
+				while (rs.next()){
+				   Solicitud solicitud = new Solicitud(rs.getInt("id"),rs.getString("origen"),rs.getString("cantidad"));
+					l.add(solicitud);					
+
+}
+
+				return l;
+			}
+		} else
+			return null;
+	}
+
+	@PutMapping("/aceptarsolicitud")
+    public ResponseEntity<String>  aceptarSolicitud(
+	 @RequestParam(value = "donante") String donante
+   , @RequestBody Solicitud solicitud) throws SQLException
+    {
+		int columnasAfectadas = 0;
+		ResponseEntity<String> respuesta = null;
+	if (c != null) {
+			
+		    String query = "UPDATE "+donante+" SET stock = stock - ? WHERE id = ?";
+			s = c.prepareStatement(query);
+			s.setString(1, solicitud.getCantidad());
+     		s.setInt(2, solicitud.getId());
+			
+			 columnasAfectadas = s.executeUpdate();
+
+			if (columnasAfectadas >= 1){
+					
+				query = "UPDATE "+solicitud.getOrigen()+" SET stock = stock + ? WHERE id = ?";
+				s = c.prepareStatement(query);
+				s.setString(1, solicitud.getCantidad());
+     			s.setInt(2, solicitud.getId());  
+				columnasAfectadas = s.executeUpdate();
+				
+				if(columnasAfectadas >=1){
+					query = "DELETE FROM solicitudes WHERE id = ?";
+					s = c.prepareStatement(query);
+					s.setInt(1, solicitud.getId());
+				   
+					int numRegBorrados  = s.executeUpdate();
+					if(numRegBorrados >= 1){
+						respuesta = new ResponseEntity<>("Transacción exitosa", HttpStatus.CREATED);
+					}else{
+					respuesta = new ResponseEntity<>("Translado no realizado",HttpStatus.INTERNAL_SERVER_ERROR);
+					cerrarDatabase();
+					}
+				}else{
+					respuesta = new ResponseEntity<>("Translado no realizado",HttpStatus.INTERNAL_SERVER_ERROR);
+					cerrarDatabase();
+				}
+			}
+			else {
+				respuesta = new ResponseEntity<>("Translado no realizado",HttpStatus.INTERNAL_SERVER_ERROR);
+				cerrarDatabase();
+			}
+		} else{
+			respuesta = new ResponseEntity<>("Translado no realizado",HttpStatus.INTERNAL_SERVER_ERROR);
+				cerrarDatabase();
+		}
+		return respuesta;
+	}
+
+
+	@DeleteMapping("/rechazarsolicitud")
+    public ResponseEntity<String>  rechazarSolicitud(
+    @RequestParam(value = "id") int id) throws SQLException
+    {
+		int columnasAfectadas = 0;
+		ResponseEntity<String> respuesta = null;
+	if (c != null) {
+			
+		    String query = "DELETE FROM solicitudes WHERE id = ?";
+			 s = c.prepareStatement(query);
+     		s.setInt(1, id);
+			
+			 columnasAfectadas = s.executeUpdate();
+
+			if (columnasAfectadas >= 1){
+				respuesta = new ResponseEntity<>("Solicitud eliminada", HttpStatus.CREATED);	
+				
+			}
+			else {
+				respuesta = new ResponseEntity<>("No fue posible borrar la solicitud",HttpStatus.INTERNAL_SERVER_ERROR);
+				cerrarDatabase();
+			}
+		} else{
+			respuesta = new ResponseEntity<>("No fue posible borrar la solicitud",HttpStatus.INTERNAL_SERVER_ERROR);
+				cerrarDatabase();
+		}
+		return respuesta;
+	}
+
+	
+	@PostMapping(path = "/creasolicitud/{id}")
+    public  ResponseEntity<String> crearsolicitud(
+		@PathVariable(value = "id") String id
+		, @RequestBody Solicitud nuevaSolicitud)  throws SQLException
+    {
+		int resultado = 0;
+		ResponseEntity<String> respuesta = null;
+	if (c != null) {
+		
+
+		try{
+			
+		    String query = "INSERT INTO solicitudes (id, origen, cantidad) VALUES (?, ?, ?)";
+			 s = c.prepareStatement(query);
+     		s.setInt(1, nuevaSolicitud.getId());
+			s.setString(2, nuevaSolicitud.getOrigen());
+			s.setString(2, nuevaSolicitud.getCantidad());	
+   		    resultado  = s.executeUpdate();
+			} catch (SQLException e){
+				System.out.println("PrendaController: Excepción SQLException:" + e.getMessage());
+				} finally {
+				try {
+				if ( s != null ) s.close();
+				if ( c != null ) c.close();
+				} catch (SQLException e){
+				System.out.println("PrendaController: Excepción SQLException:" + e.getMessage());
+				}
+			}
+			if (resultado >= 1){
+				respuesta = new ResponseEntity<>("Peticion insertada correctamente", HttpStatus.CREATED);	
+			}
+		} else{
+			respuesta = new ResponseEntity<>("Peticion no insertada",HttpStatus.INTERNAL_SERVER_ERROR);
+			cerrarDatabase();
+		}
+		return respuesta;
 	}
 
     }

@@ -30,7 +30,7 @@ public class Prenda {
 
     }
 
-    public Prenda(){}
+    public Prenda(){}   //Constructor por defecto
 
 
     public String getImagen() {
