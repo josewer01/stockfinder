@@ -22,10 +22,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.azure.core.annotation.Put;
+import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 
-import javax.sql.DataSource;
 
 
 @RestController
