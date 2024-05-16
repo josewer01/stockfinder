@@ -30,7 +30,7 @@ import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 @RestController
 public class PrendaController {
 
-    private Connection c = null; // Objeto de tipo coneccion donde se guardaran los datos de coneccion
+    private Connection c = null; // Objeto de tipo coneccion donde se guardaran los datos de conexion
 	private PreparedStatement s = null; // Objeto de tipo sentencia SQL
 	private ResultSet rs = null; // Objeto de tipo resultado Query SQL
 	private Prenda objeto;
