@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.azure.core.annotation.Put;
+import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 
 
@@ -34,17 +35,16 @@ public class PrendaController {
 	private PreparedStatement s = null; // Objeto de tipo sentencia SQL
 	private ResultSet rs = null; // Objeto de tipo resultado Query SQL
 	private Prenda objeto;
-	private SQLServerDataSource ds;
+	private SQLServerConnectionPoolDataSource ds;
 
     public PrendaController() throws SQLException {
 		try {
-			ds = new SQLServerDataSource();
+			ds = new SQLServerConnectionPoolDataSource();
 			ds.setServerName("stockfindertiendas.database.windows.net");
 			ds.setDatabaseName("tiendas");
 			ds.setUser("stockadmin@stockfindertiendas");
 			ds.setPassword("I_yj73PRBlnBOOyhhcEfDw");
-			c = ds.getConnection();
-			c.setAutoCommit(true);
+			c = ds.getPooledConnection().getConnection();
 
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -57,7 +57,7 @@ public class PrendaController {
     @RequestParam(value = "id") int id
    , @RequestParam(value = "tienda", defaultValue="sevilla") String tienda) throws SQLException
     {
-	if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+	if (c == null) { c = ds.getPooledConnection().getConnection();}
 			
 
 		    String query = "SELECT * FROM "+tienda+" WHERE id = ?";
@@ -75,7 +75,14 @@ public class PrendaController {
 										rs.getString("talla"),rs.getInt("stock"),rs.getInt("precio"),
 										rs.getString("composicion"),rs.getString("proveedor"),rs.getString("imagen"));
 					}
-
+					if (c != null) {
+						try {
+							c.close();
+							System.out.println("Cierre de conexion");
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+					}
 				return objeto;
 			}
 		
@@ -86,7 +93,7 @@ public class PrendaController {
 	@RequestParam(value="tienda", defaultValue="sevilla") String tienda) throws SQLException
     {
 	List<Prenda> l = new LinkedList<Prenda>();
-	if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+	if (c == null) { c = ds.getPooledConnection().getConnection();}
 
 		    String query = "SELECT * FROM "+tienda;
 			 s = c.prepareStatement(query);
@@ -104,7 +111,14 @@ public class PrendaController {
 					l.add(objeto);					
 
 				}
-
+				if (c != null) {
+					try {
+						c.close();
+						System.out.println("Cierre de conexion");
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
 				return l;
 			}
 		
@@ -118,7 +132,7 @@ public class PrendaController {
     {
 		int resultado = 0;
 		ResponseEntity<String> respuesta = null;
-		if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+		if (c == null) { c = ds.getPooledConnection().getConnection();}
 		
 
 		try{
@@ -152,6 +166,14 @@ public class PrendaController {
 			}else{
 			respuesta = new ResponseEntity<>("No insertado",HttpStatus.INTERNAL_SERVER_ERROR);
 				}
+				if (c != null) {
+					try {
+						c.close();
+						System.out.println("Cierre de conexion");
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
 		return respuesta;
 	}
 
@@ -162,7 +184,7 @@ public class PrendaController {
     {
 		int numRegBorrados = 0;
 		ResponseEntity<String> respuesta = null;
-		if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+		if (c == null) { c = ds.getPooledConnection().getConnection();}
 		
 
 		try{
@@ -188,6 +210,15 @@ public class PrendaController {
 				respuesta = new ResponseEntity<>("No ha sido posible borrar",HttpStatus.INTERNAL_SERVER_ERROR);
 
 			} 	
+
+			if (c != null) {
+				try {
+					c.close();
+					System.out.println("Cierre de conexion");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		return respuesta;
 	}
 
@@ -198,7 +229,7 @@ public class PrendaController {
     {
 		int columnasAfectadas = 0;
 		ResponseEntity<String> respuesta = null;
-		if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+		if (c == null) { c = ds.getPooledConnection().getConnection();}
 			//Evitamos que el valor pueda ir negativo
 		    String query = "UPDATE "+tienda+" SET stock = stock - 1 WHERE id = ? AND stock > 0";
 			 s = c.prepareStatement(query);
@@ -213,7 +244,14 @@ public class PrendaController {
 			else {
 				respuesta = new ResponseEntity<>("No ha sido posible decrementar",HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-		
+			if (c != null) {
+				try {
+					c.close();
+					System.out.println("Cierre de conexion");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		return respuesta;
 	}
 
@@ -231,7 +269,7 @@ public void cerrarDatabase() throws SQLException {
     public List<Solicitud> solicitudLista() throws SQLException
     {
 	List<Solicitud> l = new LinkedList<Solicitud>();
-	if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+	if (c == null) { c = ds.getPooledConnection().getConnection();}
 
 		    String query = "SELECT * FROM solicitudes";
 			 s = c.prepareStatement(query);
@@ -239,19 +277,35 @@ public void cerrarDatabase() throws SQLException {
    			 ResultSet rs = s.executeQuery();
 
 			if (rs == null){
+				if (c != null) {
+					try {
+						c.close();
+						System.out.println("Cierre de conexion");
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}	
 				return null;
+				}
 			}
 			else {
 				while (rs.next()){
 				   Solicitud solicitud = new Solicitud(rs.getInt("id"),rs.getInt("id_prenda"),rs.getString("origen"),rs.getString("cantidad"));
 					l.add(solicitud);					
 
-}
-
+				}					
+			if (c != null) {
+				try {
+				c.close();
+				System.out.println("Cierre de conexion");
+					} catch (SQLException e) {
+					e.printStackTrace();
+					}
+				}			
 				return l;
 			}
-		}
-
+		
+	}
+	
 	@PutMapping("/aceptarsolicitud")
     public ResponseEntity<String>  aceptarSolicitud(
 	 @RequestParam(value = "donante") String donante
@@ -259,7 +313,7 @@ public void cerrarDatabase() throws SQLException {
     {
 		int columnasAfectadas = 0;
 		ResponseEntity<String> respuesta = null;
-		if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+		if (c == null) { c = ds.getPooledConnection().getConnection();}
 			
 		    String query = "UPDATE "+donante+" SET stock = stock - ? WHERE id = ?";
 			s = c.prepareStatement(query);
@@ -295,7 +349,14 @@ public void cerrarDatabase() throws SQLException {
 			else {
 				respuesta = new ResponseEntity<>("Translado no realizado",HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-		
+			if (c != null) {
+				try {
+					c.close();
+					System.out.println("Cierre de conexion");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		return respuesta;
 	}
 
@@ -306,7 +367,7 @@ public void cerrarDatabase() throws SQLException {
     {
 		int columnasAfectadas = 0;
 		ResponseEntity<String> respuesta = null;
-		if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+		if (c == null) { c = ds.getPooledConnection().getConnection();}
 			
 		    String query = "DELETE FROM solicitudes WHERE id = ?";
 			 s = c.prepareStatement(query);
@@ -321,7 +382,14 @@ public void cerrarDatabase() throws SQLException {
 			else {
 				respuesta = new ResponseEntity<>("No fue posible borrar la solicitud",HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-		 
+			if (c != null) {
+				try {
+					c.close();
+					System.out.println("Cierre de conexion");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		return respuesta;
 	}
 
@@ -332,7 +400,7 @@ public void cerrarDatabase() throws SQLException {
     {
 		int resultado = 0;
 		ResponseEntity<String> respuesta = null;
-		if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+		if (c == null) { c = ds.getPooledConnection().getConnection();}
 		
 
 		try{
@@ -358,7 +426,14 @@ public void cerrarDatabase() throws SQLException {
 				respuesta = new ResponseEntity<>("Peticion insertada correctamente", HttpStatus.CREATED);	
 			}
 		
-		
+			if (c != null) {
+				try {
+					c.close();
+					System.out.println("Cierre de conexion");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		return respuesta;
 	}
 
