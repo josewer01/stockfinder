@@ -67,6 +67,14 @@ public class PrendaController {
    			 ResultSet rs = s.executeQuery();
 
 			if (rs == null){
+				if (c != null) {
+					try {
+						c.close();
+						System.out.println("Cierre de conexion");
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
 				return null;
 			}
 			else {
@@ -284,8 +292,9 @@ public void cerrarDatabase() throws SQLException {
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}	
-				return null;
+				
 				}
+				return null;
 			}
 			else {
 				while (rs.next()){
