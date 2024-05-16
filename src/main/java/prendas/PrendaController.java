@@ -76,7 +76,7 @@ public class PrendaController {
 										rs.getString("talla"),rs.getInt("stock"),rs.getInt("precio"),
 										rs.getString("composicion"),rs.getString("proveedor"),rs.getString("imagen"));
 					}
-					c.close();
+	
 				return objeto;
 			}
 		
@@ -105,7 +105,7 @@ public class PrendaController {
 					l.add(objeto);					
 
 				}
-				c.close();
+
 				return l;
 			}
 		
@@ -153,7 +153,7 @@ public class PrendaController {
 			}else{
 			respuesta = new ResponseEntity<>("No insertado",HttpStatus.INTERNAL_SERVER_ERROR);
 				}
-				c.close();
+
 		return respuesta;
 	}
 
@@ -242,7 +242,7 @@ public void cerrarDatabase() throws SQLException {
    			 ResultSet rs = s.executeQuery();
 
 			if (rs == null){
-				c.close();
+
 				return null;
 			}
 			else {
@@ -251,7 +251,7 @@ public void cerrarDatabase() throws SQLException {
 					l.add(solicitud);					
 
 }
-				c.close();
+
 				return l;
 			}
 		}
