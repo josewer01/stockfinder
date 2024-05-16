@@ -58,7 +58,7 @@ public class PrendaController {
     @RequestParam(value = "id") int id
    , @RequestParam(value = "tienda", defaultValue="sevilla") String tienda) throws SQLException
     {
-	if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+	if (c == null) { while((c = ds.getPooledConnection().getConnection()) == null);}
 			
 
 		    String query = "SELECT * FROM "+tienda+" WHERE id = ?";
@@ -87,7 +87,7 @@ public class PrendaController {
 	@RequestParam(value="tienda", defaultValue="sevilla") String tienda) throws SQLException
     {
 	List<Prenda> l = new LinkedList<Prenda>();
-	if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+	if (c == null) { c = ds.getPooledConnection().getConnection();}
 
 		    String query = "SELECT * FROM "+tienda;
 			 s = c.prepareStatement(query);
@@ -119,7 +119,7 @@ public class PrendaController {
     {
 		int resultado = 0;
 		ResponseEntity<String> respuesta = null;
-		if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+		if (c == null) { c = ds.getPooledConnection().getConnection();}
 		
 
 		try{
@@ -164,7 +164,7 @@ public class PrendaController {
     {
 		int numRegBorrados = 0;
 		ResponseEntity<String> respuesta = null;
-		if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+		if (c == null) { c = ds.getPooledConnection().getConnection();}
 		
 
 		try{
@@ -201,7 +201,7 @@ public class PrendaController {
     {
 		int columnasAfectadas = 0;
 		ResponseEntity<String> respuesta = null;
-		if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+		if (c == null) { c = ds.getPooledConnection().getConnection();}
 			//Evitamos que el valor pueda ir negativo
 		    String query = "UPDATE "+tienda+" SET stock = stock - 1 WHERE id = ? AND stock > 0";
 			 s = c.prepareStatement(query);
@@ -234,7 +234,7 @@ public void cerrarDatabase() throws SQLException {
     public List<Solicitud> solicitudLista() throws SQLException
     {
 	List<Solicitud> l = new LinkedList<Solicitud>();
-	if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+	if (c == null) { c = ds.getPooledConnection().getConnection();}
 
 		    String query = "SELECT * FROM solicitudes";
 			 s = c.prepareStatement(query);
@@ -263,7 +263,7 @@ public void cerrarDatabase() throws SQLException {
     {
 		int columnasAfectadas = 0;
 		ResponseEntity<String> respuesta = null;
-		if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+		if (c == null) { c = ds.getPooledConnection().getConnection();}
 			
 		    String query = "UPDATE "+donante+" SET stock = stock - ? WHERE id = ?";
 			s = c.prepareStatement(query);
@@ -310,7 +310,7 @@ public void cerrarDatabase() throws SQLException {
     {
 		int columnasAfectadas = 0;
 		ResponseEntity<String> respuesta = null;
-		if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+		if (c == null) { c = ds.getPooledConnection().getConnection();}
 			
 		    String query = "DELETE FROM solicitudes WHERE id = ?";
 			 s = c.prepareStatement(query);
@@ -336,7 +336,7 @@ public void cerrarDatabase() throws SQLException {
     {
 		int resultado = 0;
 		ResponseEntity<String> respuesta = null;
-		if (c == null) { while((c = ds.getConnection()) == null); c.setAutoCommit(true);}
+		if (c == null) { c = ds.getPooledConnection().getConnection();}
 		
 
 		try{
