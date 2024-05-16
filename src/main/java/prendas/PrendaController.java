@@ -32,7 +32,6 @@ import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 @RestController
 public class PrendaController {
 	private static final int CONNECTION_TIMEOUT = 30000; // en ms
-	private static final int VALIDATION_INTERVAL = 300000; // en ms
 	private PreparedStatement s = null; // Objeto de tipo sentencia SQL
 	private ResultSet rs = null; // Objeto de tipo resultado Query SQL
 	private Prenda objeto;
@@ -221,13 +220,6 @@ public class PrendaController {
 		return respuesta;
 	}
 
-	
-public void cerrarDatabase() throws SQLException {
-		if(rs != null) rs.close();
-		if(s != null) s.close();
-
-		c.close();
-	}
 
 //Métodos para solicitudes
 
